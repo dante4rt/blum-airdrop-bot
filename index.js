@@ -149,8 +149,7 @@ const { displayHeader } = require('./src/display');
           console.log('⌛ Please wait for 1 minute to play the game...'.yellow);
           await delay(60000);
 
-          const randPoints =
-            Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000;
+          const randPoints = Math.floor(Math.random() * (240 - 160 + 1)) + 160;
           const letsPlay = await claimGamePoints(
             token,
             gameData.gameId,
