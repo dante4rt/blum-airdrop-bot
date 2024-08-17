@@ -49,13 +49,21 @@ async function getTribe(token) {
 }
 
 async function claimFarmReward(token) {
-  const { data } = await axios({
-    url: 'https://game-domain.blum.codes/api/v1/farming/claim',
-    method: 'POST',
-    headers: { Authorization: token },
-    data: null,
-  });
-  return data;
+  try {
+    const { data } = await axios({
+      url: 'https://game-domain.blum.codes/api/v1/farming/claim',
+      method: 'POST',
+      headers: { Authorization: token },
+      data: null,
+    });
+    return data;
+  } catch (error) {
+    if (error.response.data.message === `It's too early to claim`) {
+      console.error(`🚨 Claim failed! It's too early to claim.`.red);
+    } else {
+      console.error(`🚨 Error occured from farm claim: ${error}`.red);
+    }
+  }
 }
 
 async function claimDailyReward(token) {

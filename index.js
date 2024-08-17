@@ -21,6 +21,7 @@ const {
   setupCronJob,
   setupBalanceCheckJob,
   setupDailyRewardCron,
+  setupFarmRewardCron,
 } = require('./src/cronJobs');
 const { delay } = require('./src/utils');
 const { displayHeader } = require('./src/display');
@@ -62,8 +63,22 @@ const { displayHeader } = require('./src/display');
 
     if (featureChoice === '1') {
       console.log('🌾 Claiming farm reward...'.yellow);
-      await claimFarmReward(token);
-      console.log('✅ Farm reward claimed successfully!'.green);
+      const claimResponse = await claimFarmReward(token);
+
+      if (claimResponse) {
+        console.log('✅ Farm reward claimed successfully!'.green);
+      }
+
+      const runAgain = readlineSync.question(
+        'Do you want to run this farm reward claim every 9 hours? (yes/no): '
+      );
+
+      if (runAgain.toLowerCase() === 'yes') {
+        setupFarmRewardCron(token);
+      } else {
+        console.log('👋 Exiting the bot. See you next time!'.cyan);
+        process.exit(0);
+      }
       return;
     } else if (featureChoice === '2') {
       console.log('🚜 Starting farming session...'.yellow);

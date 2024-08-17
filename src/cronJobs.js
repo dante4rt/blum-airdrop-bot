@@ -1,5 +1,5 @@
 const cron = require('cron');
-const { getBalance, claimDailyReward } = require('./api');
+const { getBalance, claimDailyReward, claimFarmReward } = require('./api');
 
 function setupCronJob(token) {
   const job = new cron.CronJob('0 */10 * * *', async () => {
@@ -22,6 +22,20 @@ function setupBalanceCheckJob(token) {
   console.log('⏰ Balance check job set up to run every minute.'.green);
 }
 
+function setupFarmRewardCron(token) {
+  const job = new cron.CronJob('0 */9 * * *', async () => {
+    console.log('⏰ Running farm reward cron job...'.yellow);
+    const reward = await claimFarmReward(token);
+
+    if (reward) {
+      console.log('✅ Farm reward claimed successfully!'.green);
+    }
+  });
+  job.start();
+
+  console.log('🕒 Daily reward cron job scheduled to run every 9 hours.'.green);
+}
+
 function setupDailyRewardCron(token) {
   const job = new cron.CronJob('0 0 * * *', async () => {
     console.log('⏰ Running daily reward cron job...'.yellow);
@@ -42,4 +56,5 @@ module.exports = {
   setupCronJob,
   setupBalanceCheckJob,
   setupDailyRewardCron,
+  setupFarmRewardCron,
 };
