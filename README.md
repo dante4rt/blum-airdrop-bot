@@ -43,18 +43,18 @@ Blum Airdrop Bot automates interactions with the Blum airdrop platform. It inclu
 
 1. **Create a `.env` file** in the root directory of the project.
 
-2. **Add your `query_id` to the `.env` file**. Example format:
+2. **Add your `QUERY_ID` to the `.env` file**. Example format:
 
     ```env
-    query_id=user=xxxxxxxxxxx
+    QUERY_ID=YOUR_QUERY_ID_VALUE_HERE
     ```
 
-   - To find your `query_id`, follow these steps:
+   - To find your `QUERY_ID`, follow these steps:
      1. Open [Web Telegram](https://web.telegram.org) in your browser.
      2. Open the [Blum Bot](https://t.me/BlumCryptoBot/app?startapp=ref_vTHusRz4j0).
      3. Open DevTools (right-click on the page and select "Inspect" or press `F12`).
      4. Go to the "Application" tab, then "Local Storage", and choose `https://telegram.blum.codes`.
-     5. Find `query_id`, copy its value.
+     5. Find `QUERY_ID`, copy its value.
 
    - **Connection Issues?** If you can't open the Blum bot, you may need to use the following Chrome extension to bypass connection restrictions: [Ignore X-Frame-Headers](https://chromewebstore.google.com/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe).
 
