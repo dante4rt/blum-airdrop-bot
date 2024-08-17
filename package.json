@@ -19,7 +19,7 @@
     "api"
   ],
   "author": "dante4rt",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.7.4",
     "colors": "^1.4.0",
