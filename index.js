@@ -2,6 +2,8 @@ require('dotenv').config();
 require('colors');
 const readlineSync = require('readline-sync');
 const moment = require('moment');
+const fs = require('fs');
+const path = require('path');
 
 const {
   getToken,
@@ -26,11 +28,30 @@ const {
 const { delay } = require('./src/utils');
 const { displayHeader } = require('./src/display');
 
+const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
+
 (async () => {
   displayHeader();
   console.log('⌛ Please wait...\n'.yellow);
 
-  const token = await getToken();
+  let token;
+
+  if (fs.existsSync(TOKEN_FILE_PATH)) {
+    token = fs.readFileSync(TOKEN_FILE_PATH, 'utf-8').trim();
+    const useExisting = readlineSync.keyInYNStrict(
+      'Token already exists. Do you want to use the existing token?'
+    );
+
+    if (!useExisting) {
+      token = await getToken();
+      fs.writeFileSync(TOKEN_FILE_PATH, token);
+      console.log('✅ New token has been saved.');
+    }
+  } else {
+    token = await getToken();
+    fs.writeFileSync(TOKEN_FILE_PATH, token);
+    console.log('✅ New token has been saved.');
+  }
 
   try {
     const username = await getUsername(token);
