@@ -61,7 +61,7 @@ async function claimFarmReward(token) {
     if (error.response.data.message === `It's too early to claim`) {
       console.error(`🚨 Claim failed! It's too early to claim.`.red);
     } else {
-      console.error(`🚨 Error occured from farm claim: ${error}`.red);
+      console.error(`🚨 Error occurred from farm claim: ${error}`.red);
     }
   }
 }
@@ -84,7 +84,7 @@ async function claimDailyReward(token) {
         `🚨 Daily claim failed because you already claim this day.`.red
       );
     } else {
-      console.error(`🚨 Error occured from daily claim: ${error}`.red);
+      console.error(`🚨 Error occurred from daily claim: ${error}`.red);
     }
   }
 }
