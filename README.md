@@ -32,9 +32,8 @@ The **One-time Flow** runs a continuous sequence of tasks without manual interve
 
 1. **Claim Farm Reward**: Claim the farm reward.
 2. **Claim Daily Reward**: Claim the daily reward.
-3. **Complete Tasks**: Complete available tasks and claim rewards.
-4. **Claim Game Points**: Play games and claim game points.
-5. **Start Farming Session**: Begin a new farming session.
+3. **Claim Game Points**: Play games and claim game points.
+4. **Start Farming Session**: Begin a new farming session.
 
 The One-time Flow will continuously execute these tasks, handling errors gracefully and attempting to restart after a specified delay (e.g., 12 hours) if issues arise.
 
