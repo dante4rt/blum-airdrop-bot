@@ -30,10 +30,7 @@ const { displayHeader } = require('./src/display');
 
 const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
 
-(async () => {
-  displayHeader();
-  console.log('⌛ Please wait...\n'.yellow);
-
+const getTokenAndSave = async () => {
   let token;
 
   if (fs.existsSync(TOKEN_FILE_PATH)) {
@@ -53,31 +50,11 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
     console.log('✅ New token has been saved.');
   }
 
+  return token;
+};
+
+const handleDefaultFlow = async (token) => {
   try {
-    const username = await getUsername(token);
-    const balance = await getBalance(token);
-    const tribe = await getTribe(token);
-
-    console.log(`👋 Hello, ${username}!`.green);
-    console.log(
-      `💰 Your current BLUM balance is: ${balance.availableBalance}`.green
-    );
-    console.log(`🎮 Your chances to play the game: ${balance.playPasses}`);
-    console.log('');
-    console.log('🏰 Your tribe details:');
-    if (tribe) {
-      console.log(`   - Name: ${tribe.title}`);
-      console.log(`   - Members: ${tribe.countMembers}`);
-      console.log(`   - Earn Balance: ${tribe.earnBalance}`);
-      console.log(`   - Your Role: ${tribe.role}`);
-      console.log('');
-    } else {
-      console.error('🚨 Tribe not found!'.red);
-      console.log(
-        `Join HCA Tribe here: https://t.me/HappyCuanAirdrop/19694\n`.blue
-      );
-    }
-
     const featureChoice = readlineSync.question(
       'Which feature would you like to use?\n1. Claim Farm Reward 🌾\n2. Start Farming Session 🚜\n3. Auto Complete Tasks ✅\n4. Auto Play and Claim Game Points 🎮\n5. Claim Daily Reward ✨\nChoose 1, 2, 3, 4, or 5: '
     );
@@ -100,7 +77,6 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
         console.log('👋 Exiting the bot. See you next time!'.cyan);
         process.exit(0);
       }
-      return;
     } else if (featureChoice === '2') {
       console.log('🚜 Starting farming session...'.yellow);
       console.log('');
@@ -119,14 +95,13 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
 
       setupCronJob(token);
       setupBalanceCheckJob(token);
-      return;
     } else if (featureChoice === '3') {
       console.log('✅ Auto completing tasks...'.yellow);
       console.log('');
 
       const tasksData = await getTasks(token);
-      tasksData.forEach((category) => {
-        category.tasks.forEach(async (task) => {
+      tasksData.forEach(async (category) => {
+        for (const task of category.tasks) {
           if (task.status === 'FINISHED') {
             console.log(`⏭️  Task "${task.title}" is already completed.`.cyan);
           } else if (task.status === 'NOT_STARTED') {
@@ -141,7 +116,9 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
                 `✅ Task "${startedTask.title}" has been started!`.green
               );
 
-              `⏳ Claiming reward for "${task.title}" is starting now...`.red;
+              console.log(
+                `⏳ Claiming reward for "${task.title}" is starting now...`.red
+              );
 
               try {
                 const claimedTask = await claimTaskReward(token, task.id);
@@ -171,9 +148,8 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
               console.log(`🚫 Unable to claim task "${task.title}".`.red);
             }
           }
-        });
+        }
       });
-      return;
     } else if (featureChoice === '4') {
       console.log('🎮 Auto playing game and claiming reward...'.yellow);
 
@@ -207,7 +183,6 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
             .red
         );
       }
-      return;
     } else if (featureChoice === '5') {
       const reward = await claimDailyReward(token);
 
@@ -225,7 +200,6 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
         console.log('👋 Exiting the bot. See you next time!'.cyan);
         process.exit(0);
       }
-      return;
     } else {
       console.log(
         '🚫 Invalid choice! Please restart the program and choose a valid option.'
@@ -233,31 +207,157 @@ const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
       );
     }
   } catch (error) {
-    if (
-      error.response &&
-      error.response.data &&
-      error.response.data.message === `It's too early to claim`
-    ) {
-      console.error(`🚨 Claim failed! It's too early to claim.`.red);
-    } else if (
-      error.response &&
-      error.response.data &&
-      error.response.data.message === 'Need to start farm'
-    ) {
-      console.error(`🚨 Claim failed! You need to start farm first.`.red);
-    } else if (
-      error.response &&
-      error.response.data &&
-      error.response.data.message === 'Need to claim farm'
-    ) {
-      console.error(`🚨 Claim failed! You need to claim farm first.`.red);
-    } else if (error.response && error.response.data === 'Unauthorized') {
-      console.error(
-        '🚨 Error occurred: Your token is expired, please get your latest Query ID again.'
+    handleApiError(error);
+  }
+};
+
+const handleApiError = async (error) => {
+  if (
+    error.response &&
+    error.response.data &&
+    error.response.data.message === `It's too early to claim`
+  ) {
+    console.error(`🚨 Claim failed! It's too early to claim.`.red);
+  } else if (
+    error.response &&
+    error.response.data &&
+    error.response.data.message === 'Need to start farm'
+  ) {
+    console.error(`🚨 Claim failed! You need to start farm first.`.red);
+  } else if (
+    error.response &&
+    error.response.data &&
+    error.response.data.message === 'Need to claim farm'
+  ) {
+    console.error(`🚨 Claim failed! You need to claim farm first.`.red);
+  } else if (
+    error.response &&
+    error.response.data &&
+    error.response.data.message === 'Token expired'
+  ) {
+    console.error(`🚨 Token expired! Refreshing the token...`.red);
+    await delay(3000);
+    const newToken = await getTokenAndSave();
+    await handleDefaultFlow(newToken);
+  } else {
+    console.error(`🚨 An unexpected error occurred: ${error.message}`.red);
+  }
+};
+
+const handleOneTimeFlow = async (token) => {
+  try {
+    console.log('Starting one-time flow...');
+
+    console.log('🌾 Claiming farm reward...');
+    const farmRewardResponse = await claimFarmReward(token);
+    if (farmRewardResponse) {
+      console.log('✅ Farm reward claimed successfully!'.green);
+    }
+
+    console.log('✨ Claiming daily reward...');
+    const dailyRewardResponse = await claimDailyReward(token);
+    if (dailyRewardResponse) {
+      console.log('✅ Daily reward claimed successfully!'.green);
+    }
+
+    console.log('🎮 Claiming game points...');
+    const balance = await getBalance(token);
+    if (balance.playPasses > 0) {
+      let counter = balance.playPasses;
+      while (counter > 0) {
+        const gameData = await getGameId(token);
+
+        console.log('⌛ Please wait for 1 minute to play the game...'.yellow);
+        await delay(60000);
+
+        const randPoints = Math.floor(Math.random() * (240 - 160 + 1)) + 160;
+        const letsPlay = await claimGamePoints(
+          token,
+          gameData.gameId,
+          randPoints
+        );
+
+        if (letsPlay === 'OK') {
+          const balance = await getBalance(token);
+          console.log(
+            `🎮 Play game success! Your balance now: ${balance.availableBalance} BLUM`
+              .green
+          );
+        }
+        counter--;
+      }
+    } else {
+      console.log(
+        `🚫 You can't play again because you have ${balance.playPasses} chance(s) left.`
           .red
       );
-    } else {
-      console.error('🚨 Error occurred:'.red, error.message);
     }
+
+    console.log('🚜 Starting farming session...');
+    const farmingSession = await startFarmingSession(token);
+    const farmStartTime = moment(farmingSession.startTime).format(
+      'MMMM Do YYYY, h:mm:ss A'
+    );
+    const farmEndTime = moment(farmingSession.endTime).format(
+      'MMMM Do YYYY, h:mm:ss A'
+    );
+    console.log(`✅ Farming session started!`.green);
+    console.log(`⏰ Start time: ${farmStartTime}`);
+    console.log(`⏳ End time: ${farmEndTime}`);
+
+    setupCronJob(token);
+    setupBalanceCheckJob(token);
+  } catch (error) {
+    console.log(error, 'kontol');
+    console.error(`🚨 Error in one-time flow: ${error.message}`.red);
   }
-})();
+};
+
+const runScript = async () => {
+  displayHeader();
+
+  const token = await getTokenAndSave();
+
+  const username = await getUsername(token);
+  const balance = await getBalance(token);
+  const tribe = await getTribe(token);
+
+  console.log(`👋 Hello, ${username}!`.green);
+  console.log(
+    `💰 Your current BLUM balance is: ${balance.availableBalance}`.green
+  );
+  console.log(`🎮 Your chances to play the game: ${balance.playPasses}`);
+  console.log('');
+  console.log('🏰 Your tribe details:');
+  if (tribe) {
+    console.log(`   - Name: ${tribe.title}`);
+    console.log(`   - Members: ${tribe.countMembers}`);
+    console.log(`   - Earn Balance: ${tribe.earnBalance}`);
+    console.log(`   - Your Role: ${tribe.role}`);
+    console.log('');
+  } else {
+    console.error('🚨 Tribe not found!'.red);
+    console.log(
+      `Join HCA Tribe here: https://t.me/HappyCuanAirdrop/19694\n`.blue
+    );
+  }
+
+  const option = readlineSync.question(
+    'Choose the script to run:\n1. Default Flow\n2. One-time Flow\nEnter 1 or 2: '
+  );
+
+  if (option === '1') {
+    await handleDefaultFlow(token);
+  } else if (option === '2') {
+    while (true) {
+      await handleOneTimeFlow(token);
+      console.log('🔄 Restarting one-time flow in 12 hours...'.yellow);
+      await delay(43200000); // Wait for 12 hours before retrying
+    }
+  } else {
+    console.log('🚫 Invalid option selected! Please restart the program.'.red);
+    process.exit(1);
+  }
+};
+
+runScript();

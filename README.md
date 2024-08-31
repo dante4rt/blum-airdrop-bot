@@ -12,6 +12,32 @@ Blum Airdrop Bot automates interactions with the Blum airdrop platform. It inclu
 - **Auto Play and Claim Game Points**: Play games and claim game points automatically.
 - **Claim Daily Reward**: Automatically claim daily rewards.
 
+## Flows
+
+### Default Flow
+
+The **Default Flow** allows users to manually select specific tasks to perform. You can choose from:
+
+1. **Claim Farm Reward**: Automatically claim farm rewards.
+2. **Start Farming Session**: Begin a new farming session.
+3. **Auto Complete Tasks**: Complete and claim rewards for available tasks.
+4. **Auto Play and Claim Game Points**: Play games and claim game points.
+5. **Claim Daily Reward**: Claim your daily reward.
+
+After performing an action, you can choose to set up a cron job for regular automation or exit the bot if no automation is needed.
+
+### One-time Flow
+
+The **One-time Flow** runs a continuous sequence of tasks without manual intervention. This flow includes:
+
+1. **Claim Farm Reward**: Claim the farm reward.
+2. **Claim Daily Reward**: Claim the daily reward.
+3. **Complete Tasks**: Complete available tasks and claim rewards.
+4. **Claim Game Points**: Play games and claim game points.
+5. **Start Farming Session**: Begin a new farming session.
+
+The One-time Flow will continuously execute these tasks, handling errors gracefully and attempting to restart after a specified delay (e.g., 12 hours) if issues arise.
+
 ## Setup
 
 ### Prerequisites
@@ -58,13 +84,19 @@ Blum Airdrop Bot automates interactions with the Blum airdrop platform. It inclu
 
    - **Connection Issues?** If you can't open the Blum bot, you may need to use the following Chrome extension to bypass connection restrictions: [Ignore X-Frame-Headers](https://chromewebstore.google.com/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe).
 
-### Running the Bot
+## Running the Bot
 
-To start the bot, run:
+To start the bot and choose a flow:
 
-```bash
-npm start
-```
+1. **Start the bot:**
+
+    ```bash
+    npm start
+    ```
+
+2. **Choose the script to run:**
+   - **Default Flow**: Manually select tasks and optionally set up automation.
+   - **One-time Flow**: Run a continuous sequence of tasks automatically.
 
 ## Donations
 
