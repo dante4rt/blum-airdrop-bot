@@ -93,6 +93,14 @@ const handleDefaultFlow = async (token) => {
       console.log(`⏰ Start time: ${farmStartTime}`);
       console.log(`⏳ End time: ${farmEndTime}`);
 
+      const balance = await getBalance(token);
+
+      if (balance) {
+        console.log(
+          `🌾 Updated farming balance: ${balance.farming.balance} BLUM`.green
+        );
+      }
+
       setupCronJob(token);
       setupBalanceCheckJob(token);
     } else if (featureChoice === '3') {
@@ -152,6 +160,8 @@ const handleDefaultFlow = async (token) => {
       });
     } else if (featureChoice === '4') {
       console.log('🎮 Auto playing game and claiming reward...'.yellow);
+
+      const balance = await getBalance(token);
 
       if (balance.playPasses > 0) {
         let counter = balance.playPasses;
@@ -240,7 +250,18 @@ const handleApiError = async (error) => {
     const newToken = await getTokenAndSave();
     await handleDefaultFlow(newToken);
   } else {
-    console.error(`🚨 An unexpected error occurred: ${error.message}`.red);
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.includes('Cloudflare')
+    ) {
+      console.error(
+        `🚨 An unexpected error occurred because of Cloudflare, please try again in a few minutes.`
+          .red
+      );
+    } else {
+      console.error(`🚨 An unexpected error occurred: ${error.message}`.red);
+    }
   }
 };
 
@@ -304,6 +325,10 @@ const handleOneTimeFlow = async (token) => {
     console.log(`✅ Farming session started!`.green);
     console.log(`⏰ Start time: ${farmStartTime}`);
     console.log(`⏳ End time: ${farmEndTime}`);
+
+    console.log(
+      `🌾 Updated farming balance: ${balance.farming.balance} BLUM`.green
+    );
 
     setupCronJob(token);
     setupBalanceCheckJob(token);

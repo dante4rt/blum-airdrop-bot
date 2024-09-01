@@ -12,14 +12,20 @@ function setupCronJob(token) {
 }
 
 function setupBalanceCheckJob(token) {
-  const job = new cron.CronJob('* * * * *', async () => {
+  const randomHour = Math.floor(Math.random() * 8) + 1;
+  const cronPattern = `0 */${randomHour} * * *`;
+
+  const job = new cron.CronJob(cronPattern, async () => {
     const balance = await getBalance(token);
     console.log(
       `🌾 Updated farming balance: ${balance.farming.balance} BLUM`.green
     );
   });
+
   job.start();
-  console.log('⏰ Balance check job set up to run every minute.'.green);
+  console.log(
+    `⏰ Balance check job set up to run every ${randomHour} hours.`.green
+  );
 }
 
 function setupFarmRewardCron(token) {
