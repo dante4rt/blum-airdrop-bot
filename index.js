@@ -86,6 +86,7 @@ const handleDefaultFlow = async (token) => {
         );
       }
 
+      setupCronJob(token);
       setupBalanceCheckJob(token);
     } else if (featureChoice === '3') {
       console.log('✅ Auto completing tasks...'.yellow);
@@ -319,9 +320,6 @@ const handleOneTimeFlow = async (token) => {
     } else {
       return;
     }
-
-    setupCronJob(token);
-    setupBalanceCheckJob(token);
   } catch (error) {
     if (
       error.response &&
