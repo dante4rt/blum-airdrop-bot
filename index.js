@@ -308,7 +308,6 @@ const handleOneTimeFlow = async (token) => {
     setupCronJob(token);
     setupBalanceCheckJob(token);
   } catch (error) {
-    console.log(error, 'kontol');
     console.error(`🚨 Error in one-time flow: ${error.message}`.red);
   }
 };
