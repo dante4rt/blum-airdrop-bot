@@ -31,24 +31,9 @@ const { displayHeader } = require('./src/display');
 const TOKEN_FILE_PATH = path.join(__dirname, 'accessToken.txt');
 
 const getTokenAndSave = async () => {
-  let token;
-
-  if (fs.existsSync(TOKEN_FILE_PATH)) {
-    token = fs.readFileSync(TOKEN_FILE_PATH, 'utf-8').trim();
-    const useExisting = readlineSync.keyInYNStrict(
-      'Token already exists. Do you want to use the existing token?'
-    );
-
-    if (!useExisting) {
-      token = await getToken();
-      fs.writeFileSync(TOKEN_FILE_PATH, token);
-      console.log('✅ New token has been saved.');
-    }
-  } else {
-    token = await getToken();
-    fs.writeFileSync(TOKEN_FILE_PATH, token);
-    console.log('✅ New token has been saved.');
-  }
+  const token = await getToken();
+  fs.writeFileSync(TOKEN_FILE_PATH, token);
+  console.log('✅ New token has been saved.');
 
   return token;
 };
@@ -101,7 +86,6 @@ const handleDefaultFlow = async (token) => {
         );
       }
 
-      setupCronJob(token);
       setupBalanceCheckJob(token);
     } else if (featureChoice === '3') {
       console.log('✅ Auto completing tasks...'.yellow);
@@ -255,11 +239,7 @@ const handleApiError = async (error) => {
     const newToken = await getTokenAndSave();
     await handleDefaultFlow(newToken);
   } else {
-    if (
-      error.response &&
-      error.response.data &&
-      error.response.data.includes('Cloudflare')
-    ) {
+    if (error.response && error.response.data) {
       console.error(
         `🚨 An unexpected error occurred because of Cloudflare, please try again in a few minutes.`
           .red
@@ -343,7 +323,11 @@ const handleOneTimeFlow = async (token) => {
     setupCronJob(token);
     setupBalanceCheckJob(token);
   } catch (error) {
-    console.error(`🚨 Error in one-time flow: ${error.message}`.red);
+    if (error.response.data.message === 'cannot start game') {
+      console.error(`🚨 Can't start the game, please try again later.`.red);
+    } else {
+      console.error(`🚨 Error in one-time flow: ${error.message}`.red);
+    }
   }
 };
 
@@ -384,9 +368,10 @@ const runScript = async () => {
     await handleDefaultFlow(token);
   } else if (option === '2') {
     while (true) {
-      await handleOneTimeFlow(token);
-      console.log('🔄 Restarting one-time flow in 12 hours...'.yellow);
-      await delay(43200000); // Wait for 12 hours before retrying
+      const refreshedToken = await getTokenAndSave();
+      await handleOneTimeFlow(refreshedToken);
+      console.log('🔄 Restarting one-time flow in 60 minutes...'.yellow);
+      await delay(3600000); // Wait for 60 minutes before retrying
     }
   } else {
     console.log('🚫 Invalid option selected! Please restart the program.'.red);
