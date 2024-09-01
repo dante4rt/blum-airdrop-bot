@@ -326,9 +326,11 @@ const handleOneTimeFlow = async (token) => {
     console.log(`⏰ Start time: ${farmStartTime}`);
     console.log(`⏳ End time: ${farmEndTime}`);
 
-    console.log(
-      `🌾 Updated farming balance: ${balance.farming.balance} BLUM`.green
-    );
+    if (balance) {
+      console.log(
+        `🌾 Updated farming balance: ${balance.farming.balance} BLUM`.green
+      );
+    }
 
     setupCronJob(token);
     setupBalanceCheckJob(token);
