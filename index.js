@@ -323,7 +323,11 @@ const handleOneTimeFlow = async (token) => {
     setupCronJob(token);
     setupBalanceCheckJob(token);
   } catch (error) {
-    if (error.response.data.message === 'cannot start game') {
+    if (
+      error.response &&
+      error.response.data &&
+      error.response.data.message === 'cannot start game'
+    ) {
       console.error(`🚨 Can't start the game, please try again later.`.red);
     } else {
       console.error(`🚨 Error in one-time flow: ${error.message}`.red);
