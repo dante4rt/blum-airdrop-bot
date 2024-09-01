@@ -108,6 +108,7 @@ const handleDefaultFlow = async (token) => {
       console.log('');
 
       const tasksData = await getTasks(token);
+
       tasksData.forEach(async (category) => {
         for (const task of category.tasks) {
           if (task.status === 'FINISHED') {
@@ -180,10 +181,14 @@ const handleDefaultFlow = async (token) => {
 
           if (letsPlay === 'OK') {
             const balance = await getBalance(token);
-            console.log(
-              `🎮 Play game success! Your balance now: ${balance.availableBalance} BLUM`
-                .green
-            );
+            if (balance) {
+              console.log(
+                `🎮 Play game success! Your balance now: ${balance.availableBalance} BLUM`
+                  .green
+              );
+            } else {
+              console.log(`🎮 Play game success!`.green);
+            }
           }
           counter--;
         }
@@ -283,6 +288,7 @@ const handleOneTimeFlow = async (token) => {
 
     console.log('🎮 Claiming game points...');
     const balance = await getBalance(token);
+
     if (balance.playPasses > 0) {
       let counter = balance.playPasses;
       while (counter > 0) {
@@ -326,10 +332,12 @@ const handleOneTimeFlow = async (token) => {
     console.log(`⏰ Start time: ${farmStartTime}`);
     console.log(`⏳ End time: ${farmEndTime}`);
 
-    if (balance) {
+    if (balance.farming.balance) {
       console.log(
         `🌾 Updated farming balance: ${balance.farming.balance} BLUM`.green
       );
+    } else {
+      return;
     }
 
     setupCronJob(token);
