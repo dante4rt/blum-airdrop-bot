@@ -107,7 +107,7 @@ async function getTasks(token) {
     method: 'GET',
     headers: { Authorization: token },
   });
-  return data;
+  return data[0].subSections;
 }
 
 async function startTask(token, taskId, title) {
