@@ -15,7 +15,7 @@ async function getToken() {
 
 async function getUsername(token) {
   const response = await axios({
-    url: 'https://gateway.blum.codes/v1/user/me',
+    url: 'https://user-domain.blum.codes/api/v1/user/me',
     method: 'GET',
     headers: { Authorization: token },
   });
@@ -34,7 +34,7 @@ async function getBalance(token) {
 async function getTribe(token) {
   try {
     const response = await axios({
-      url: 'https://game-domain.blum.codes/api/v1/tribe/my',
+      url: 'https://tribe-domain.blum.codes/api/v1/tribe/my',
       method: 'GET',
       headers: { Authorization: token },
     });
@@ -103,17 +103,17 @@ async function startFarmingSession(token) {
 
 async function getTasks(token) {
   const { data } = await axios({
-    url: 'https://game-domain.blum.codes/api/v1/tasks',
+    url: 'https://earn-domain.blum.codes/api/v1/tasks',
     method: 'GET',
     headers: { Authorization: token },
   });
-  return data[0].subSections;
+  return data[0].tasks;
 }
 
 async function startTask(token, taskId, title) {
   try {
     const { data } = await axios({
-      url: `https://game-domain.blum.codes/api/v1/tasks/${taskId}/start`,
+      url: `https://earn-domain.blum.codes/api/v1/tasks/${taskId}/start`,
       method: 'POST',
       headers: { Authorization: token },
       data: null,
@@ -137,7 +137,7 @@ async function startTask(token, taskId, title) {
 
 async function claimTaskReward(token, taskId) {
   const { data } = await axios({
-    url: `https://game-domain.blum.codes/api/v1/tasks/${taskId}/claim`,
+    url: `https://earn-domain.blum.codes/api/v1/tasks/${taskId}/claim`,
     method: 'POST',
     headers: { Authorization: token },
     data: null,

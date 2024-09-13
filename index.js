@@ -95,7 +95,7 @@ const handleDefaultFlow = async (token) => {
       const tasksData = await getTasks(token);
 
       tasksData.forEach(async (category) => {
-        for (const task of category.tasks) {
+        for (const task of category.subTasks) {
           if (task.status === 'FINISHED') {
             console.log(`⏭️  Task "${task.title}" is already completed.`.cyan);
           } else if (task.status === 'NOT_STARTED') {
