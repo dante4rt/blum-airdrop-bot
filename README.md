@@ -68,13 +68,13 @@ The One-time Flow will continuously execute these tasks, handling errors gracefu
 
 1. **Create a `.env` file** in the root directory of the project.
 
-2. **Add your `QUERY_ID` to the `.env` file**. Example format:
+2. **Add your `SESSION_KEY` to the `.env` file**. Example format:
 
     ```env
-    QUERY_ID=YOUR_QUERY_ID_VALUE_HERE
+    SESSION_KEY=YOUR_QUERY_ID_VALUE_HERE
     ```
 
-   - To find your `QUERY_ID`, follow these steps:
+   - To find your `SESSION_KEY`, follow these steps:
      1. Open [Web Telegram](https://web.telegram.org) in your browser.
      2. Open the [Blum Bot](https://t.me/BlumCryptoBot/app?startapp=ref_vTHusRz4j0).
      3. Open DevTools (right-click on the page and select "Inspect" or press `F12`).
